@@ -8,7 +8,8 @@ const TaskForm = ({ addTask }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (title.trim() === '') return;
+        if (title.trim() === '')
+            return;
         addTask(title, description);
         setTitle('');
         setDescription('');
