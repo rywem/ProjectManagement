@@ -1,35 +1,38 @@
-import { useState } from 'react'
-
+import React from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { addTask, toggleTaskCompletion, deleteTask, setFilter } from './tasksSlice';
+//import { useState } from 'react'
 import './App.css'
 import TaskList from './components/TaskList';
 import TaskForm from './components/TaskForm';
 
 const App = () => {
-    const [tasks, setTasks] = useState([]); // creates an empty array 'tasks', also, 'setTasks' is a react provided 
-                                            // its important to note that tasks is immutable.
-    const addTask = (title, description) => {
-        // ...tasks is the javascript spread operator. 
-        // which create because it tasks is immutable, it creates a new task array and adding the newly added task to the end of the array
-        setTasks([...tasks, { id: Date.now(), title, description, completed: false }]);
-    };
+    const dispatch = useDispatch();
 
-    const toggleTaskCompletion = (id) => {
-        setTasks(tasks.map(task =>            
-            task.id == id ? {... task, completed : !task.completed} : task
-        ));
-    };
+    const tasks = useSelector((state) => state.tasks.tasks);
+    const filter = useSelector((state) => state.tasks.filter)
+    const filteredTasks = tasks.filter((task) => {
+        if (filter === 'active')
+            return !task.completed;
+        if (filter === 'completed')
+            return task.completed;
 
-    const deleteTask = (id) => {
-        setTasks(tasks.filter(task => task.id !== id));
-    };
-
+        return true;
+    });                        
+    
     return (
         <div>
             <h1>Task Manager</h1>
-            <TaskForm addTask={addTask} />
-            <TaskList tasks={tasks}
-                toggleTaskCompletion={toggleTaskCompletion}
-                deleteTask={deleteTask}
+            <TaskForm addTask={(title, description) => dispatch(addTask({ title, description }))} />
+            <div>
+                <button onClick={() => dispatch(setFilter('all'))}>All</button>
+                <button onClick={() => dispatch(setFilter('active'))}>Active</button>
+                <button onClick={() => dispatch(setFilter('completed'))}>Completed</button>
+            </div>
+            <TaskList
+                tasks={filteredTasks}
+                toggleTaskCompletion={(id) => dispatch(toggleTaskCompletion(id))}
+                deleteTask={(id) => dispatch(deleteTask(id))}
             />
         </div>
     )
