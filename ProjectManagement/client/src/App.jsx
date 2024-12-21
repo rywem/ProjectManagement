@@ -1,16 +1,19 @@
-import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { addTask, toggleTaskCompletion, deleteTask, setFilter } from './tasksSlice';
-//import { useState } from 'react'
 import './App.css'
 import TaskList from './components/TaskList';
 import TaskForm from './components/TaskForm';
 
 const App = () => {
-    const dispatch = useDispatch();
+    
+    // useDispatch: Used to dispatch actions to update the Redux state.
+    const dispatch = useDispatch();  // Hook to dispatch actions to the Redux store
+    // useSelector: Used to access specific parts of the Redux state.
+    // Here, we use it to access tasks and filter from the global state.
+    const tasks = useSelector((state) => state.tasks.tasks);  // Hook to select the tasks from the Redux state
+    const filter = useSelector((state) => state.tasks.filter)  // Hook to select filter from the Redux state
 
-    const tasks = useSelector((state) => state.tasks.tasks);
-    const filter = useSelector((state) => state.tasks.filter)
+    // Filter tasks based on the current filter state
     const filteredTasks = tasks.filter((task) => {
         if (filter === 'active')
             return !task.completed;
@@ -23,12 +26,15 @@ const App = () => {
     return (
         <div>
             <h1>Task Manager</h1>
+            {/*  Pass the addTask action to TaskForm via dispatch */}
             <TaskForm addTask={(title, description) => dispatch(addTask({ title, description }))} />
+            {/* Add filter buttons */}
             <div>
                 <button onClick={() => dispatch(setFilter('all'))}>All</button>
                 <button onClick={() => dispatch(setFilter('active'))}>Active</button>
                 <button onClick={() => dispatch(setFilter('completed'))}>Completed</button>
             </div>
+            {/* Pass filtered tasks and actions to TaskList */}
             <TaskList
                 tasks={filteredTasks}
                 toggleTaskCompletion={(id) => dispatch(toggleTaskCompletion(id))}
