@@ -1,5 +1,14 @@
 import { createSlice } from '@reduxjs/toolkit'; // Importing createSlice from Redux Toolkit
 
+// Helper function to save tasks to localStorage
+const saveTasksToLocalStorage = (tasks) => {
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+};
+// Helper function to load tasks from localStorage
+const loadTasksFromLocalStorage = () => {
+    const savedTasks = localStorage.getItem('tasks');
+    return savedTasks ? JSON.parse(savedTasks) : [];
+};
 
 const tasksSlice = createSlice({
     name: 'tasks', // The slice's namespace (used for actions and debugging)
@@ -8,7 +17,7 @@ const tasksSlice = createSlice({
     // - `tasks`: An array to hold all task objects
     // - `filter`: A string that determines the current view filter ('all', 'active', or 'completed')
     initialState: {
-        tasks: [], 
+        tasks: loadTasksFromLocalStorage(), // Load saved tasks or initialize with an empty array
         filter: 'all',  // <<default filter. Available options: 'all', 'active', 'completed'
     },
 
@@ -22,6 +31,7 @@ const tasksSlice = createSlice({
                 description: action.payload.description, 
                 completed: false
             });
+            saveTasksToLocalStorage(state.tasks); // Save updated tasks to localStorage
         },
 
         // toggleTaskCompletion function - Toggle the completed state of a task
@@ -30,10 +40,12 @@ const tasksSlice = createSlice({
             if (task) {
                 task.completed = !task.completed;
             }
+            saveTasksToLocalStorage(state.tasks); // Save updated tasks to localStorage
         },
         // deleteTask function - Remove a task from the list by its ID
         deleteTask: (state, action) => {
             state.tasks = state.tasks.filter((task) => task.id !== action.payload);
+            saveTasksToLocalStorage(state.tasks); // Save updated tasks to localStorage
         },
         // setFilter function - set the filter for viewing tasks
         setFilter: (state, action) => {
