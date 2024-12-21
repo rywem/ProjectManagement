@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import TaskItem from './TaskItem';
 
 const TaskList = ({ tasks, toggleTaskCompletion, deleteTask }) => {
