@@ -1,60 +1,67 @@
-import { createSlice } from '@reduxjs/toolkit'; // Importing createSlice from Redux Toolkit
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'; // Importing createSlice from Redux Toolkit
+import axios from 'axios';
 
+const API_URL = "http://localhost:5270/api/tasks";
+
+export const fetchTasks = createAsyncThunk('tasks/fetchTasks', async () => {
+    const response = await axios.get(API_URL);
+    return response.data;
+  });
+  
+  export const addTask = createAsyncThunk('tasks/addTask', async (task) => {
+    const response = await axios.post(API_URL, task);
+    return response.data;
+  });
+  export const toggleTaskCompletion = createAsyncThunk('tasks/toggleTaskCompletion', async (id) => {
+    await axios.put(`${API_URL}/${id}`);
+    return id;
+  });
+  
+  export const deleteTask = createAsyncThunk('tasks/deleteTask', async (id) => {
+    await axios.delete(`${API_URL}/${id}`);
+    return id;
+  });
+  
 // Helper function to save tasks to localStorage
 const saveTasksToLocalStorage = (tasks) => {
     localStorage.setItem('tasks', JSON.stringify(tasks));
 };
-// Helper function to load tasks from localStorage
-const loadTasksFromLocalStorage = () => {
-    const savedTasks = localStorage.getItem('tasks');
-    return savedTasks ? JSON.parse(savedTasks) : [];
-};
-
+// Slice
 const tasksSlice = createSlice({
-    name: 'tasks', // The slice's namespace (used for actions and debugging)
-    //Define the initial state for the tasks slice
-    // The state includes:
-    // - `tasks`: An array to hold all task objects
-    // - `filter`: A string that determines the current view filter ('all', 'active', or 'completed')
+    name: 'tasks',
     initialState: {
-        tasks: loadTasksFromLocalStorage(), // Load saved tasks or initialize with an empty array
-        filter: 'all',  // <<default filter. Available options: 'all', 'active', 'completed'
+      tasks: [],
+      status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
+      error: null,
     },
-
-    reducers: {  // Reducers define how state should change in response to actions
-
-        // addTask function - Add a new task to the list
-        addTask: (state, action) => {
-            state.tasks.push({
-                id: Date.now(), 
-                title: action.payload.title, 
-                description: action.payload.description, 
-                completed: false
-            });
-            saveTasksToLocalStorage(state.tasks); // Save updated tasks to localStorage
-        },
-
-        // toggleTaskCompletion function - Toggle the completed state of a task
-        toggleTaskCompletion: (state, action) => {
-            const task = state.tasks.find((t) => t.id === action.payload);
-            if (task) {
-                task.completed = !task.completed;
-            }
-            saveTasksToLocalStorage(state.tasks); // Save updated tasks to localStorage
-        },
-        // deleteTask function - Remove a task from the list by its ID
-        deleteTask: (state, action) => {
-            state.tasks = state.tasks.filter((task) => task.id !== action.payload);
-            saveTasksToLocalStorage(state.tasks); // Save updated tasks to localStorage
-        },
-        // setFilter function - set the filter for viewing tasks
-        setFilter: (state, action) => {
-            state.filter = action.payload; // 'all', 'active', 'completed'
-        },
+    reducers: {},
+    extraReducers: (builder) => {
+      builder
+        .addCase(fetchTasks.pending, (state) => {
+          state.status = 'loading';
+        })
+        .addCase(fetchTasks.fulfilled, (state, action) => {
+          state.status = 'succeeded';
+          state.tasks = action.payload;
+        })
+        .addCase(fetchTasks.rejected, (state, action) => {
+          state.status = 'failed';
+          state.error = action.error.message;
+        })
+        .addCase(addTask.fulfilled, (state, action) => {
+          state.tasks.push(action.payload);
+        })
+        .addCase(toggleTaskCompletion.fulfilled, (state, action) => {
+          const task = state.tasks.find((t) => t.id === action.payload);
+          if (task) task.completed = !task.completed;
+        })
+        .addCase(deleteTask.fulfilled, (state, action) => {
+          state.tasks = state.tasks.filter((task) => task.id !== action.payload);
+        });
     },
 });
 // These are automatically generated based on the reducer names (e.g., addTask creates an addTask action)
-export const { addTask, toggleTaskCompletion, deleteTask, setFilter } = tasksSlice.actions;
+//export const { addTask, toggleTaskCompletion, deleteTask, setFilter } = tasksSlice.actions;
 
 /* Usage examples:
 dispatch(addTask({ title: 'New Task', description: 'Description' }));
