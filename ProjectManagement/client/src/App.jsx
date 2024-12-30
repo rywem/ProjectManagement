@@ -36,9 +36,9 @@ const App = () => {
           />
     
           <div>
-            <button onClick={() => dispatch(setFilter('all'))}>All</button>
-            <button onClick={() => dispatch(setFilter('active'))}>Active</button>
-            <button onClick={() => dispatch(setFilter('completed'))}>Completed</button>
+            <button onClick={() => dispatch(setFilter('all'))} className='button-small'>All</button>
+            <button onClick={() => dispatch(setFilter('active'))} className='button-small'>Active</button>
+            <button onClick={() => dispatch(setFilter('completed'))} className='button-small'>Completed</button>
           </div>
     
           <TaskList

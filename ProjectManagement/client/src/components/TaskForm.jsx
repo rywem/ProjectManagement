@@ -26,7 +26,7 @@ const TaskForm = ({ addTask }) => {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}>                
             </textarea>
-            <button type="submit">Add Task</button>
+            <button type="submit" className='button-large'>Add Task</button>
         </form>
     )
 }
