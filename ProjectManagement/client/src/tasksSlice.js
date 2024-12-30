@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'; // Importing createSlice from Redux Toolkit
 import axios from 'axios';
 
-const API_URL = "http://localhost:5270/api/tasks";
+const API_URL = "http://localhost:5000/api/tasks";
 
 export const fetchTasks = createAsyncThunk('tasks/fetchTasks', async () => {
     const response = await axios.get(API_URL);
@@ -22,10 +22,6 @@ export const fetchTasks = createAsyncThunk('tasks/fetchTasks', async () => {
     return id;
   });
   
-// Helper function to save tasks to localStorage
-const saveTasksToLocalStorage = (tasks) => {
-    localStorage.setItem('tasks', JSON.stringify(tasks));
-};
 // Slice
 const tasksSlice = createSlice({
     name: 'tasks',

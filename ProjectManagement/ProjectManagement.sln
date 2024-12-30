@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35527.113 d17.12
+VisualStudioVersion = 17.12.35527.113
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "client", "Client\client.esproj", "{5838E6DB-F52C-42A0-8F5A-042E3DEF40F0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiServer", "ApiServer\ApiServer.csproj", "{07A2E31F-DEDB-45FD-9C8F-8112D653075D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,6 +19,10 @@ Global
 		{5838E6DB-F52C-42A0-8F5A-042E3DEF40F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5838E6DB-F52C-42A0-8F5A-042E3DEF40F0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5838E6DB-F52C-42A0-8F5A-042E3DEF40F0}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{07A2E31F-DEDB-45FD-9C8F-8112D653075D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07A2E31F-DEDB-45FD-9C8F-8112D653075D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07A2E31F-DEDB-45FD-9C8F-8112D653075D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07A2E31F-DEDB-45FD-9C8F-8112D653075D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
