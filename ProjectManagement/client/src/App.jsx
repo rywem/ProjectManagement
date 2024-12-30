@@ -1,6 +1,6 @@
 import { useSelector, useDispatch } from 'react-redux';
-import { addTask, toggleTaskCompletion, deleteTask} from './tasksSlice';
-
+import { addTask, toggleTaskCompletion, deleteTask, fetchTasks, setFilter} from './tasksSlice';
+import { useEffect } from 'react';
 import TaskList from './components/TaskList';
 import TaskForm from './components/TaskForm';
 
