@@ -48,6 +48,7 @@ builder.Services.AddAuthentication("Bearer")
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("SuperDuperSecretKey12345"))
         };
     });
+builder.Services.AddAuthorization(); // Add authorization middleware
 
 builder.Services.AddControllers();
 // Add services to the container.

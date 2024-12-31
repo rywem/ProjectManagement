@@ -4,10 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using ApiServer.Models;
+using Microsoft.AspNetCore.Authorization;
 namespace ApiServer.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize] // Require valid JWT token for all endpoints in this controller
     public class TasksController : ControllerBase
     {
         private static List<TaskItem> Tasks = new List<TaskItem>();
