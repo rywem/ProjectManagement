@@ -25,8 +25,8 @@ export const AuthProvider = ({ children }) => {
         try {
             var response = await AuthService.login(username, password);
             if (response !== null) {
-                localStorage.setItem('token', response.token);
-                setToken(response.token); // Update local state for immediate access
+                localStorage.setItem('token', response);
+                setToken(response); // Update local state for immediate access
                 setAuthState({ token: response });
                 navigate('/tasks');
             }

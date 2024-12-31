@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -10,32 +11,66 @@ namespace ApiServer.Controllers
     [Route("api/auth")]
     public class AuthController : ControllerBase
     {
-        private readonly string jwtKey = "YourSecretKeyHere"; // Replace with a strong key
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly string jwtKey = "YourSec34244365gtrhtr4y65trjfgh7658765gfhfretKeyHere"; // Replace with a strong key
+
+        public AuthController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
+        {
+            _userManager = userManager;
+            _signInManager = signInManager;
+        }
 
         [HttpPost("register")]
-        public IActionResult Register([FromBody] UserDto user)
+        public async Task<IActionResult> Register([FromBody] UserDto user)
         {
-            // In a real app, save the user to a database and hash their password
+            if (!ModelState.IsValid)
+                return BadRequest(new { message = "Invalid input" });
+
+            var identityUser = new IdentityUser
+            {
+                UserName = user.Username,
+                Email = user.Username // Assuming email is the username
+            };
+
+            var result = await _userManager.CreateAsync(identityUser, user.Password);
+            if (!result.Succeeded)
+            {
+                return BadRequest(new
+                {
+                    message = "User registration failed",
+                    errors = result.Errors.Select(e => e.Description)
+                });
+            }
+
             return Ok(new { message = "User registered successfully" });
         }
 
         [HttpPost("login")]
-        public IActionResult Login([FromBody] UserDto user)
+        public async Task<IActionResult> Login([FromBody] UserDto user)
         {
-            if (user.Username == "test" && user.Password == "password") // Mock validation
-            {
-                var token = GenerateJwtToken(user.Username);
-                return Ok(new { token });
-            }
-            return Unauthorized(new { message = "Invalid username or password" });
+            if (!ModelState.IsValid)
+                return BadRequest(new { message = "Invalid input" });
+
+            var identityUser = await _userManager.FindByNameAsync(user.Username);
+            if (identityUser == null)
+                return Unauthorized(new { message = "Invalid username or password" });
+
+            var result = await _signInManager.PasswordSignInAsync(user.Username, user.Password, false, false);
+            if (!result.Succeeded)
+                return Unauthorized(new { message = "Invalid username or password" });
+
+            var token = GenerateJwtToken(identityUser);
+            return Ok(new { token });
         }
 
-        private string GenerateJwtToken(string username)
+        private string GenerateJwtToken(IdentityUser user)
         {
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, username),
+                new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(ClaimTypes.NameIdentifier, user.Id)
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));

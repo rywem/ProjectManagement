@@ -9,7 +9,7 @@ const Login = () => {
     const { login } = useAuth(); // Destructure the login method from useAuth
 
     const handleSubmit = async (e) => {
-        e.PreventDefault();
+        e.preventDefault();
         if(username.trim() === '' || password.trim() === '')
         {
             setErrorMessage("Username and password are required.");
