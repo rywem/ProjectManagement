@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
-import  AuthService from '../services/authService.js';
+import  AuthService from '../services/authService';
 import { jwtDecode } from 'jwt-decode';
 const AuthContext = createContext();
 
@@ -23,7 +23,7 @@ export const AuthProvider = ({ children }) => {
     const login = async (username, password) => {
         //https://dev.to/miracool/how-to-manage-user-authentication-with-react-js-3ic5
         try {
-            var response = await authService.login(username, password);
+            var response = await AuthService.login(username, password);
             if (response !== null) {
                 localStorage.setItem('token', response.token);
                 setToken(response.token); // Update local state for immediate access

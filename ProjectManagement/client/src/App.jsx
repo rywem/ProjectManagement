@@ -4,8 +4,11 @@ import { addTask, toggleTaskCompletion, deleteTask, fetchTasks, setFilter} from 
 import { useEffect } from 'react';
 import TaskList from './components/TaskList';
 import TaskForm from './components/TaskForm';
-
+import Login from './components/Login';
+import Register from './components/Register';
 import AuthProvider from './hooks/authProvider';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import ProtectedRoute from './components/ProtectedRoute';
 const App = () => {
     const dispatch = useDispatch();
     const tasks = useSelector((state) => state.tasks.tasks);
@@ -26,33 +29,63 @@ const App = () => {
       });                    
     
       return (
-          <div>
-              <AuthProvider>
-                  <h1>Task Manager</h1>
-                  {status === 'loading' && <p>Loading...</p>}
-                  {status === 'failed' && <p>Error: {error}</p>}
-    
-                  <TaskForm
-                    addTask={(title, description) =>
-                      dispatch(addTask({ title, description }))
+        <AuthProvider>
+            <Routes>
+                {/* Public Routes */}
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/" element={<Navigate to="/tasks" replace />} />
+
+                {/* Protected Routes */}
+                <Route
+                    path="/tasks"
+                    element={
+                        <ProtectedRoute>
+                            <div>
+                                <h1>Task Manager</h1>
+                                {status === 'loading' && <p>Loading...</p>}
+                                {status === 'failed' && <p>Error: {error}</p>}
+
+                                <TaskForm
+                                    addTask={(title, description) =>
+                                        dispatch(addTask({ title, description }))
+                                    }
+                                />
+
+                                <div>
+                                    <button
+                                        onClick={() => dispatch(setFilter('all'))}
+                                        className="button-small"
+                                    >
+                                        All
+                                    </button>
+                                    <button
+                                        onClick={() => dispatch(setFilter('active'))}
+                                        className="button-small"
+                                    >
+                                        Active
+                                    </button>
+                                    <button
+                                        onClick={() => dispatch(setFilter('completed'))}
+                                        className="button-small"
+                                    >
+                                        Completed
+                                    </button>
+                                </div>
+
+                                <TaskList
+                                    tasks={filteredTasks}
+                                    toggleTaskCompletion={(id) =>
+                                        dispatch(toggleTaskCompletion(id))
+                                    }
+                                    deleteTask={(id) => dispatch(deleteTask(id))}
+                                />
+                            </div>
+                        </ProtectedRoute>
                     }
-                  />
-    
-                  <div>
-                    <button onClick={() => dispatch(setFilter('all'))} className='button-small'>All</button>
-                    <button onClick={() => dispatch(setFilter('active'))} className='button-small'>Active</button>
-                    <button onClick={() => dispatch(setFilter('completed'))} className='button-small'>Completed</button>
-                  </div>
-    
-                  <TaskList
-                    tasks={filteredTasks}
-                    toggleTaskCompletion={(id) =>
-                      dispatch(toggleTaskCompletion(id))
-                    }
-                    deleteTask={(id) => dispatch(deleteTask(id))}
-                  />
-              </AuthProvider>
-        </div>
+                />
+            </Routes>
+        </AuthProvider>
     );
 };
 
