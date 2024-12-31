@@ -64,3 +64,9 @@ li {
     border: 1px solid #ccc;
     border-radius: 4px;
 }
+
+.error-message {
+    color: red;
+    margin-bottom: 10px;
+}
+
