@@ -30,7 +30,7 @@ namespace ApiServer.Controllers
             var identityUser = new IdentityUser
             {
                 UserName = user.Username,
-                Email = user.Username // Assuming email is the username
+                Email = $"{user.Username}@{user.Username}.com"// Assuming email is the username
             };
 
             var result = await _userManager.CreateAsync(identityUser, user.Password);
