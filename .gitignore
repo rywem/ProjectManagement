@@ -401,3 +401,4 @@ FodyWeavers.xsd
 /ProjectManagement/client/obj\Debug
 ProjectManagement/.DS_Store
 ProjectManagement/client/obj\Debug/\package.g.props
+*.db
