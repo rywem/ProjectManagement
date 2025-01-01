@@ -1,25 +1,21 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'; // Importing createSlice from Redux Toolkit
-import axios from 'axios';
+import TaskService from './services/taskService'; // Importing the TaskService
 
-const API_URL = "http://localhost:5110/api/tasks";
 
-export const fetchTasks = createAsyncThunk('tasks/fetchTasks', async () => {
-    const response = await axios.get(API_URL);
-    return response.data;
+export const getTasks = createAsyncThunk('tasks/fetchTasks', async () => {
+    return await TaskService.getTasks();
+    
   });
   
   export const addTask = createAsyncThunk('tasks/addTask', async (task) => {
-    const response = await axios.post(API_URL, task);
-    return response.data;
+      return await TaskService.addTask(task);
   });
   export const toggleTaskCompletion = createAsyncThunk('tasks/toggleTaskCompletion', async (id) => {
-    await axios.put(`${API_URL}/${id}`);
-    return id;
+      return await TaskService.toggleTaskCompletion(id);
   });
   
   export const deleteTask = createAsyncThunk('tasks/deleteTask', async (id) => {
-    await axios.delete(`${API_URL}/${id}`);
-    return id;
+      return await TaskService.deleteTask(id);
   });
   
 // Slice
@@ -39,14 +35,14 @@ const tasksSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            .addCase(fetchTasks.pending, (state) => {
+            .addCase(getTasks.pending, (state) => {
                 state.status = 'loading';
             })
-            .addCase(fetchTasks.fulfilled, (state, action) => {
+            .addCase(getTasks.fulfilled, (state, action) => {
                 state.status = 'succeeded';
                 state.tasks = action.payload;
             })
-            .addCase(fetchTasks.rejected, (state, action) => {
+            .addCase(getTasks.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.error.message;
             })
@@ -65,25 +61,6 @@ const tasksSlice = createSlice({
 
 // Export actions
 export const { setFilter } = tasksSlice.actions;
-// These are automatically generated based on the reducer names (e.g., addTask creates an addTask action)
-//export const { addTask, toggleTaskCompletion, deleteTask, setFilter, fetchTasks } = tasksSlice.actions;
 
-/* Usage examples:
-dispatch(addTask({ title: 'New Task', description: 'Description' }));
-dispatch(toggleTaskCompletion(taskId));
-dispatch(deleteTask(taskId));
-dispatch(setFilter('completed'));
-*/
-
-// The reducer is used to handle state updates in the Redux store
 export default tasksSlice.reducer;
 
-/* Usage example (in store.js)
-
-const store = configureStore({
-  reducer: {
-    tasks: tasksReducer,
-  },
-});
-
-*/

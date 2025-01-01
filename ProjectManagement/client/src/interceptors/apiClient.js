@@ -5,11 +5,13 @@ const apiClient = axios.create({
 });
 
 apiClient.interceptors.request.use((config) => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            config.headers["Authorization"] = `Bearer ${token}`;
-        }
-        return config;
+    const token = localStorage.getItem('token');
+    console.log('JWT Token:', token); // Debug
+    if (token) {
+        config.headers["Authorization"] = `Bearer ${token}`;
+    }
+    console.log('Request Headers:', config.headers); // Debugging
+    return config;
 },
     (error) => {
         return Promise.reject(error);

@@ -4,6 +4,8 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using ApiServer.Data;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,7 +47,16 @@ builder.Services.AddAuthentication("Bearer")
             ValidateIssuerSigningKey = true,
             ValidIssuer = "ApiServer",
             ValidAudience = "ApiServer",
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("SuperDuperSecretKey12345"))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("YourSec34244365gtrhtr4y65trjfgh7658765gfhfretKeyHere"))
+        };
+        // Log authentication errors
+        options.Events = new JwtBearerEvents
+        {
+            OnAuthenticationFailed = context =>
+            {
+                Debug.WriteLine($"Token authentication failed: {context.Exception.Message}");
+                return Task.CompletedTask;
+            }
         };
     });
 builder.Services.AddAuthorization(); // Add authorization middleware
@@ -55,7 +66,20 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Events.OnRedirectToLogin = context =>
+    {
+        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+        return Task.CompletedTask;
+    };
 
+    options.Events.OnRedirectToAccessDenied = context =>
+    {
+        context.Response.StatusCode = StatusCodes.Status403Forbidden;
+        return Task.CompletedTask;
+    };
+});
 var app = builder.Build();
 // Ensure the database is created
 using (var scope = app.Services.CreateScope())

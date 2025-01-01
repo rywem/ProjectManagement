@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { useSelector, useDispatch } from 'react-redux';
-import { addTask, toggleTaskCompletion, deleteTask, fetchTasks, setFilter} from './tasksSlice';
+import { addTask, toggleTaskCompletion, deleteTask, getTasks, setFilter} from './tasksSlice';
 import { useEffect } from 'react';
 import TaskList from './components/TaskList';
 import TaskForm from './components/TaskForm';
@@ -18,7 +18,7 @@ const App = () => {
 
     useEffect(() => {
         if (status === 'idle') {
-          dispatch(fetchTasks());
+          dispatch(getTasks());
         }
       }, [status, dispatch]);
     
