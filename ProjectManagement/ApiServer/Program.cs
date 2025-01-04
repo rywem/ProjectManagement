@@ -6,6 +6,8 @@ using ApiServer.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Diagnostics;
+using ApiServer;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,7 +38,8 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod();
     });
 });
-builder.Services.AddAuthentication("Bearer")    
+builder.Logging.AddConsole();
+/*builder.Services.AddAuthentication("Bearer")    
     .AddJwtBearer(options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
@@ -59,7 +62,67 @@ builder.Services.AddAuthentication("Bearer")
             }
         };
     });
+*/
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = "ApiServer",
+            ValidAudience = "ApiServer",
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("YourSec34244365gtrhtr4y65trjfgh7658765gfhfretKeyHere"))
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnAuthenticationFailed = context =>
+            {
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                context.Response.ContentType = "application/json";
+                var errorResponse = new { error = "Invalid token", details = context.Exception.Message };
+                Debug.WriteLine(JsonSerializer.Serialize(errorResponse));
+                Console.WriteLine(JsonSerializer.Serialize(errorResponse));
+                return context.Response.WriteAsJsonAsync(errorResponse);
+            },
+            OnTokenValidated = context =>
+            {
+                Console.WriteLine($"Token validated for user: {context.Principal?.Identity?.Name}");
+                Debug.WriteLine($"Token validated for user: {context.Principal?.Identity?.Name}");
+                return Task.CompletedTask;
+            },
+            OnChallenge = context =>
+            {
+                if (!context.Response.HasStarted)
+                {
+                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    context.Response.ContentType = "application/json";
+                    var errorResponse = new { error = "Unauthorized", details = "Token is missing or invalid." };
+                    Debug.WriteLine(JsonSerializer.Serialize(errorResponse));
+                    Console.WriteLine(JsonSerializer.Serialize(errorResponse));
+                    return context.Response.WriteAsJsonAsync(errorResponse);
+                }
+                return Task.CompletedTask;
+            },
+            OnForbidden = context =>
+            {
+                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                context.Response.ContentType = "application/json";
+                var errorResponse = new { error = "Forbidden", details = "You do not have access to this resource." };
+                Debug.WriteLine(JsonSerializer.Serialize(errorResponse));
+                Console.WriteLine(JsonSerializer.Serialize(errorResponse));
+                return context.Response.WriteAsJsonAsync(errorResponse);
+            }
+
+        };
+        options.IncludeErrorDetails = true;
+        
+    });
 builder.Services.AddAuthorization(); // Add authorization middleware
+
 
 builder.Services.AddControllers();
 // Add services to the container.
@@ -94,7 +157,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseMiddleware<ExceptionMiddleware>();
 app.UseHttpsRedirection();
 app.UseRouting();
 var summaries = new[]

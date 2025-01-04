@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }) => {
         //https://dev.to/miracool/how-to-manage-user-authentication-with-react-js-3ic5
         try {
             var response = await AuthService.login(username, password);
-            if (response !== null) {
+            if (response) {
                 localStorage.setItem('token', response);
                 setToken(response); // Update local state for immediate access
                 setAuthState({ token: response });

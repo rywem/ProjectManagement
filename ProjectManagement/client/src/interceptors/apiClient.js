@@ -10,10 +10,11 @@ apiClient.interceptors.request.use((config) => {
     if (token) {
         config.headers["Authorization"] = `Bearer ${token}`;
     }
-    console.log('Request Headers:', config.headers); // Debugging
+    console.log('2. Request Headers:', config.headers); // Debugging
     return config;
 },
     (error) => {
+        console.error("1. Request error:", error);
         return Promise.reject(error);
     }
 );

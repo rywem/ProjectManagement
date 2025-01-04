@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using ApiServer.Models;
 using Microsoft.AspNetCore.Authorization;
+using System.Diagnostics;
 namespace ApiServer.Controllers
 {
     [ApiController]
@@ -21,10 +22,21 @@ namespace ApiServer.Controllers
         }
 
         [HttpPost]
-        public ActionResult<TaskItem> AddTask(TaskItem newTask)
+        public ActionResult<TaskItem> AddTask([FromBody] TaskItem newTask)
         {
+            if (newTask == null)
+            {
+                Debug.WriteLine("Received NULL task object");
+                Console.WriteLine("Received NULL task object");
+                return BadRequest("Invalid task data");
+            }
+
+            Console.WriteLine($"Received Task - Title: {newTask.Title}, Description: {newTask.Description}");
+            Console.WriteLine($"Authorization Header: {Request.Headers["Authorization"]}");
+
             newTask.Id = Guid.NewGuid();
             Tasks.Add(newTask);
+
             return Ok(newTask);
         }
 
