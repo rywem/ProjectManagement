@@ -17,17 +17,23 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Add Identity
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 {
-    //This application is just for simple learning, therefore removing strict password requirements
-    // Disable all password requirements
+    // This application is just for simple learning, therefore removing strict password requirements
     options.Password.RequireDigit = false;
     options.Password.RequiredLength = 1; // Allow short passwords
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireUppercase = false;
     options.Password.RequireLowercase = false;
-    options.Password.RequiredUniqueChars = 06;
+    options.Password.RequiredUniqueChars = 0;
 })
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
+
+ // This explicitly tells Identity to NOT use cookies and instead use JWT
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    options.SignIn.RequireConfirmedAccount = false;
+});
+
 // Add services to the container.
 builder.Services.AddCors(options =>
 {
@@ -63,7 +69,71 @@ builder.Logging.AddConsole();
         };
     });
 */
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+// builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+//     .AddJwtBearer(options =>
+//     {
+//         options.TokenValidationParameters = new TokenValidationParameters
+//         {
+//             ValidateIssuer = true,
+//             ValidateAudience = true,
+//             ValidateLifetime = true,
+//             ValidateIssuerSigningKey = true,
+//             ValidIssuer = "ApiServer",
+//             ValidAudience = "ApiServer",
+//             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("YourSec34244365gtrhtr4y65trjfgh7658765gfhfretKeyHere"))
+//         };
+
+//         options.Events = new JwtBearerEvents
+//         {
+//             OnAuthenticationFailed = context =>
+//             {
+//                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+//                 context.Response.ContentType = "application/json";
+//                 var errorResponse = new { error = "Invalid token", details = context.Exception.Message };
+//                 Debug.WriteLine(JsonSerializer.Serialize(errorResponse));
+//                 Console.WriteLine(JsonSerializer.Serialize(errorResponse));
+//                 return context.Response.WriteAsJsonAsync(errorResponse);
+//             },
+//             OnTokenValidated = context =>
+//             {
+//                 Console.WriteLine($"Token validated for user: {context.Principal?.Identity?.Name}");
+//                 Debug.WriteLine($"Token validated for user: {context.Principal?.Identity?.Name}");
+//                 return Task.CompletedTask;
+//             },
+//             OnChallenge = context =>
+//             {
+//                 if (!context.Response.HasStarted)
+//                 {
+//                     context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+//                     context.Response.ContentType = "application/json";
+//                     var errorResponse = new { error = "Unauthorized", details = "Token is missing or invalid." };
+//                     Debug.WriteLine(JsonSerializer.Serialize(errorResponse));
+//                     Console.WriteLine(JsonSerializer.Serialize(errorResponse));
+//                     return context.Response.WriteAsJsonAsync(errorResponse);
+//                 }
+//                 return Task.CompletedTask;
+//             },
+//             OnForbidden = context =>
+//             {
+//                 context.Response.StatusCode = StatusCodes.Status403Forbidden;
+//                 context.Response.ContentType = "application/json";
+//                 var errorResponse = new { error = "Forbidden", details = "You do not have access to this resource." };
+//                 Debug.WriteLine(JsonSerializer.Serialize(errorResponse));
+//                 Console.WriteLine(JsonSerializer.Serialize(errorResponse));
+//                 return context.Response.WriteAsJsonAsync(errorResponse);
+//             }
+
+//         };
+//         options.IncludeErrorDetails = true;
+        
+//     });
+// builder.Services.AddAuthorization(); // Add authorization middleware
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme; // 👈 Set everything to JWT
+})
     .AddJwtBearer(options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
@@ -116,13 +186,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 Console.WriteLine(JsonSerializer.Serialize(errorResponse));
                 return context.Response.WriteAsJsonAsync(errorResponse);
             }
-
         };
         options.IncludeErrorDetails = true;
-        
     });
-builder.Services.AddAuthorization(); // Add authorization middleware
 
+builder.Services.AddAuthorization();
 
 builder.Services.AddControllers();
 // Add services to the container.
@@ -131,17 +199,13 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    options.Events.OnRedirectToLogin = context =>
-    {
-        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-        return Task.CompletedTask;
-    };
+    options.Cookie.HttpOnly = true;
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
 
-    options.Events.OnRedirectToAccessDenied = context =>
-    {
-        context.Response.StatusCode = StatusCodes.Status403Forbidden;
-        return Task.CompletedTask;
-    };
+    // Disable automatic redirects for unauthorized access
+    options.LoginPath = "/api/auth/login";
+    options.AccessDeniedPath = "/api/auth/accessdenied";
+    options.SlidingExpiration = true;
 });
 var app = builder.Build();
 // Ensure the database is created
@@ -160,25 +224,8 @@ if (app.Environment.IsDevelopment())
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseHttpsRedirection();
 app.UseRouting();
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-    .WithName("GetWeatherForecast")
-    .WithOpenApi();
+
 
 app.UseCors();
 app.UseAuthentication();
@@ -205,10 +252,4 @@ using (var scope = app.Services.CreateScope())
     }
 }
 app.Run();
-
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
 

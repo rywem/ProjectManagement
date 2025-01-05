@@ -61,6 +61,7 @@ namespace ApiServer.Controllers
                 return Unauthorized(new { message = "Invalid username or password" });
 
             var token = GenerateJwtToken(identityUser);
+            Console.WriteLine(token);
             return Ok(new { token });
         }
 
