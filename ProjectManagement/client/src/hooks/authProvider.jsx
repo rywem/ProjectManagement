@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
         const storedToken = localStorage.getItem('token');
         if(!storedToken) {
             const decoded = jwtDecode(storedToken);
-            const expires = decodedToken.exp * 1000; // Convert to ms
+            const expires = decoded.exp * 1000; // Convert to ms
             setToken(storedToken);
             setAuthState({ token: storedToken });
             // ✅ Update global auth data
@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }) => {
             var response = await AuthService.login(username, password);
             if (response) {
                 const decoded = jwtDecode(response);
-                const expires = decodedToken.exp * 1000; // Convert to ms
+                const expires = decoded.exp * 1000; // Convert to ms
 
                 localStorage.setItem('token', response);
                 setToken(response); // Update local state for immediate access
