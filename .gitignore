@@ -455,3 +455,4 @@ ProjectManagement/client/obj/Debug/package.g.props
 ProjectManagement/ApiServer/app.db-shm
 ProjectManagement/ApiServer/app.db-wal
 ProjectManagement/client/obj\Debug/\package.g.props
+/ProjectManagement/client/obj\Debug
