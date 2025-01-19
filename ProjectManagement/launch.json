@@ -1,0 +1,41 @@
+{
+    "configurations": [
+      {
+        "type": "coreclr",
+        "request": "launch",
+        "name": "Launch ApiServer",
+        "program": "${workspaceFolder}/ApiServer/bin/Debug/net9.0/ApiServer.dll",
+        "args": [],
+        "cwd": "${workspaceFolder}/ApiServer",
+        "stopAtEntry": false,
+        "serverReadyAction": {
+          "action": "openExternally",
+          "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+        },
+        "env": {
+          "ASPNETCORE_ENVIRONMENT": "Development"
+        },
+        "preLaunchTask": "build"
+      },
+      {
+        "type": "node",
+        "request": "launch",
+        "name": "Launch Client",
+        "program": "${workspaceFolder}/client/src/main.jsx",
+        "cwd": "${workspaceFolder}/client",
+        "runtimeExecutable": "npm",
+        "runtimeArgs": [
+          "run",
+          "dev"
+        ],
+        "port": 3000
+      }
+    ],
+    "inputs": [
+      {
+        "type": "promptString",
+        "id": "programPath",
+        "description": "Path to your program"
+      }
+    ]
+  }

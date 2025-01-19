@@ -43,7 +43,7 @@ const Login = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required />
-                <button type="submit" className='button-large'>Login</button>
+                <button type="submit" className='button-large' id='btnLogin'>Login</button>
                 {errorMessage && <p className="error-message">{errorMessage}</p>}
             </form>
             

@@ -46,9 +46,7 @@ const Register = () => {
                 <button type="submit" className='button-large'>Register</button>
                 {errorMessage && <p className="error-message">{errorMessage}</p>}
             </form> 
-            <p>
-                Don't have an account? <Link to="/register">Register here</Link>
-            </p>
+           
         </div>
     )
 };

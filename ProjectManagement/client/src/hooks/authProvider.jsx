@@ -9,15 +9,22 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
     const [authState, setAuthState] = useState(null);
     const [token, setToken] = useState(null);
+    const [expires, setExpires] = useState(null);
     const navigate = useNavigate();
     const [errorMessage, setErrorMessage] = useState(null);
 
+    // runs on page load
     useEffect(() =>{
         const storedToken = localStorage.getItem('token');
         if(!storedToken) {
+            const decoded = jwtDecode(storedToken);
+            const expires = decodedToken.exp * 1000; // Convert to ms
             setToken(storedToken);
             setAuthState({ token: storedToken });
+            // ✅ Update global auth data
+            updateAuthData(response, expires);
         }
+
     }, []);
 
     const login = async (username, password) => {
@@ -25,9 +32,16 @@ export const AuthProvider = ({ children }) => {
         try {
             var response = await AuthService.login(username, password);
             if (response) {
+                const decoded = jwtDecode(response);
+                const expires = decodedToken.exp * 1000; // Convert to ms
+
                 localStorage.setItem('token', response);
                 setToken(response); // Update local state for immediate access
                 setAuthState({ token: response });
+                
+                // ✅ Update global auth data
+                updateAuthData(response, expires);
+
                 navigate('/tasks');
             }
         } catch (error) {
@@ -40,6 +54,7 @@ export const AuthProvider = ({ children }) => {
         setAuthState(null);
         localStorage.removeItem("token");
         setToken('');
+        setExpires(null);
         navigate("/login");
     }
 
@@ -67,3 +82,13 @@ export default AuthProvider;
 export const useAuth = () => {
     return useContext(AuthContext);
 };
+
+// New function to get the token & expiration globally
+let authData = { token: null, expires: null }; // Global variable
+
+export const updateAuthData = (token, expires) => {
+    authData.token = token;
+    authData.expires = expires;
+};
+
+export const getAuthData = () => authData;
