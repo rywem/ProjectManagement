@@ -454,3 +454,4 @@ ProjectManagement/client/obj/Debug/package.g.props
 *.db
 ProjectManagement/ApiServer/app.db-shm
 ProjectManagement/ApiServer/app.db-wal
+ProjectManagement/client/obj\Debug/\package.g.props
