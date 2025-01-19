@@ -13,19 +13,39 @@ export const AuthProvider = ({ children }) => {
     const navigate = useNavigate();
     const [errorMessage, setErrorMessage] = useState(null);
 
-    // runs on page load
-    useEffect(() =>{
+    // useEffect: Handle checking for token in local storage
+    useEffect(() => {
+        console.log("Checking localStorage for token");
         const storedToken = localStorage.getItem('token');
-        if(!storedToken) {
+        if (storedToken) {
             const decoded = jwtDecode(storedToken);
             const expires = decoded.exp * 1000; // Convert to ms
             setToken(storedToken);
             setAuthState({ token: storedToken });
             // ✅ Update global auth data
-            updateAuthData(response, expires);
+            updateAuthData(storedToken, expires);
         }
-
+        
     }, []);
+
+    //useEffect: Check for token expiration
+    useEffect(() => {        
+        if (!expires)
+            return;
+        console.log("Checking for token expiration");
+        const remainingTime = expires - Date.now();
+        if (remainingTime <= 0) {
+            console.log("Token has expired");
+            logout();
+        }
+        else {
+            const timeout = setTimeout(() => {
+                console.log("Token has expired");
+                logout();
+            }, remainingTime);
+            return clearTimeout(timeout); //cleanup timeout if expires changes
+        }
+    }, [expires]); // Runs when `expires` is updated.
 
     const login = async (username, password) => {
         //https://dev.to/miracool/how-to-manage-user-authentication-with-react-js-3ic5

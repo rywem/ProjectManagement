@@ -37,8 +37,8 @@ namespace ApiServer
 
         private async Task HandleExceptionAsync(HttpContext context, Exception ex)
         {
-            context.Response.ContentType = "application/json";
-            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+            //context.Response.ContentType = "application/json";
+            //context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
             var response = new
             {
