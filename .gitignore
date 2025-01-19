@@ -402,3 +402,5 @@ FodyWeavers.xsd
 ProjectManagement/.DS_Store
 ProjectManagement/client/obj\Debug/\package.g.props
 *.db
+ProjectManagement/ApiServer/app.db-shm
+ProjectManagement/ApiServer/app.db-wal
